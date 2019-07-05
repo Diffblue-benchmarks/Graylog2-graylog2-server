@@ -1,0 +1,511 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+units:
+ - target:
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/Tools.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/Tools.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/Tools$1.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/Tools.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/indexer/searches/timeranges/AutoValue_AbsoluteRange$Builder.class
+     sourceDir: graylog2-server/target/generated-sources/annotations
+     sourceFile: org/graylog2/plugin/indexer/searches/timeranges/AutoValue_AbsoluteRange.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/indexer/searches/timeranges/AbsoluteRange$Builder.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/indexer/searches/timeranges/AbsoluteRange.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/indexer/searches/timeranges/InvalidRangeParametersException.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/indexer/searches/timeranges/InvalidRangeParametersException.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/indexer/searches/timeranges/AbsoluteRange.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/indexer/searches/timeranges/AbsoluteRange.java
+ - target:
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/inputs/extractors/SplitAndIndexExtractor.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/inputs/extractors/SplitAndIndexExtractor.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/inputs/Extractor$Result.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/inputs/Extractor.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/inputs/Extractor$ConditionType.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/inputs/Extractor.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/inputs/Extractor.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/inputs/Extractor.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/inputs/Extractor$ReservedFieldException.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/inputs/Extractor.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/ConfigurationException.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/ConfigurationException.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/plugin/inputs/Extractor$CursorStrategy.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/plugin/inputs/Extractor.java
+ - target:
+   - dir: graylog2-server/target/classes
+     file: org/graylog2/shared/UI.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog2/shared/UI.java
+ - target:
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/processors/ConfigurationStateUpdater.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/processors/ConfigurationStateUpdater.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$MessageRefContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/Rule$Builder.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/Rule.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$LiteralContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$EqualityContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/expressions/Expression.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/expressions/Expression.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$ExpressionContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$StringContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$IdentifierContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/compiler/JavaCompiler.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/compiler/JavaCompiler.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$IndexedAccessContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$FunctionCallContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$PipelineAstBuilder.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$PipelineDeclarationContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$MapLiteralExprContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$NamedArgsContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/Rule.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/Rule.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$CharContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$AndContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$RuleRefContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$BooleanContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/compiler/InMemoryFileManager.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/compiler/InMemoryFileManager.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$AdditionContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/compiler/PipelineCompilationException.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/compiler/PipelineCompilationException.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$EmptyStmtContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$VarAssignStmtContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/FunctionRegistry.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/FunctionRegistry.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$OrContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/CodeGenerator$JavaPoetListener.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/CodeGenerator.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/RuleAstBaseListener.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/RuleAstBaseListener.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/compiler/JavaSourceFromString.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/compiler/JavaSourceFromString.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/expressions/Expression$Type.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/expressions/Expression.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$FloatContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$SyntaxErrorListener.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangBaseListener.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangBaseListener.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/RuleAstWalker.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/RuleAstWalker.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$LiteralPrimaryContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$RuleDeclarationContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/RuleAstListener.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/RuleAstListener.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$PositionalArgsContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/Pipeline.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/Pipeline.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$StatementContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$ComparisonContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$SignedExpressionContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$PipelineContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$RuleTypeChecker.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$FuncContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$StageDeclarationContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/ast/Pipeline$Builder.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/ast/Pipeline.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangLexer.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangLexer.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$MultiplicationContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$RuleTypeAnnotator.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$IntegerContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/ParseException.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/ParseException.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$PipelineDeclsContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$ArrayLiteralExprContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/PipelineClassloader.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/PipelineClassloader.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$PropAssignmentContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$RuleAstBuilder.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser$ParseContext.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/PipelineRuleParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$NotContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$FuncStmtContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/codegen/CodeGenerator.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/codegen/CodeGenerator.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$ArgumentsContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$NestedContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser$ParenExprContext.class
+     sourceDir: graylog2-server/target/generated-sources/antlr4
+     sourceFile: org/graylog/plugins/pipelineprocessor/parser/RuleLangParser.java
+ - target:
+   - dir: graylog2-server/target/classes
+     file: org/graylog/plugins/pipelineprocessor/functions/syslog/SyslogUtils.class
+     sourceDir: graylog2-server/src/main/java
+     sourceFile: org/graylog/plugins/pipelineprocessor/functions/syslog/SyslogUtils.java
